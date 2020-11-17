@@ -8,6 +8,7 @@ public class PanelToggle : MonoBehaviour
 {
 
     public GameObject[] panels;
+    public XRController[] controllers;
 
     // Start is called before the first frame update
     void Start()
@@ -18,26 +19,25 @@ public class PanelToggle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SwitchType(RightSelect, RightTeleport);
-        SwitchType(LeftSelect, LeftTeleport);
+        ShowPanels(panels, controllers);
     }
 
-    void SwitchType(GameObject selector, GameObject teleporter)
+    void ShowPanels(GameObject[] panels, XRController[] controllers)
     {
-        XRController controller = selector.GetComponent<XRController>();
-        if (controller.inputDevice.TryGetFeatureValue(CommonUsages.primary2DAxis, out bool input))
+        foreach (XRController controller in controllers)
         {
-            if (vector2.magnitude >= 0.2f)
+            XRController inputDevice = controller.GetComponent<XRController>();
+            /*bool inputPrimary = false;
+            bool inputSecondary = false;*/
+            if (inputDevice.inputDevice.TryGetFeatureValue(CommonUsages.primaryButton, out bool inputPrimary) || inputDevice.inputDevice.TryGetFeatureValue(CommonUsages.secondaryButton, out bool inputSecondary))
             {
-                //print("Magnitude cutoff surpassed");
-                selector.SetActive(false);
-                teleporter.SetActive(true);
-            }
-            else
-            {
-                selector.SetActive(true);
-                teleporter.SetActive(false);
+                foreach (GameObject panel in panels)
+                    if (inputPrimary || inputSecondary)
+                    {
+                        panel.SetActive(!panel.activeSelf);
+                    }
             }
         }
+
     }
 }
